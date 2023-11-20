@@ -1,0 +1,17 @@
+# theme.yaml configuration file
+
+name: Github embedding
+license: GPLv3
+licenselink: https://github.com/chkuendig/hugo-github/blob/master/LICENSE
+description: Hugo theme component to embed github repos, issues and commits.
+homepage: https://github.com/chkuendig/hugo-github
+tags:
+  - component
+  - embed
+features:
+  - simple github embedding
+min_version: 0.40.0
+
+author:
+  name: Christian Kündig
+  homepage: https://christian.kuendig.info

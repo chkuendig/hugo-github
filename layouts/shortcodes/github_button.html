@@ -23,12 +23,6 @@
     {{- $urlToGet = print "https://api.github.com/repos/" $repo -}}
 {{- end -}}
 {{- with resources.GetRemote $urlToGet  -}}
-	{{- if (resources.GetRemote $urlToGet).Err -}}
-		<blockquote class="toot-blockquote">
-			<p class="ctr legal">[Source not online<br />
-			at time of site build.]</p>
-		</blockquote>
-	{{- else -}}
 		{{- $json := unmarshal .Content -}}
 		{{- $jsonHolder := $json -}}{{/* Being safe */}}
         {{- $link := ""}}
@@ -66,5 +60,4 @@
             {{- $icon := "octicon-repo"}}
 <a class="github-button" href="{{- $link -}}" data-icon="{{- $icon -}}" data-size="small" data-text='{{- $shortLink -}}'></a>
     {{- end -}}
-	{{- end -}}
 {{- end -}}

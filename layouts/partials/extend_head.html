@@ -1,0 +1,9 @@
+{{if (.HasShortcode "github_button") }}
+{{- $githubButtons := resources.Get "js/github-buttons.js" }}
+{{- if hugo.IsProduction }}
+  {{- $githubButtons = minify $githubButtons }}
+{{- end }}
+<script src="{{ $githubButtons.RelPermalink }}" data-no-instant
+  {{- if site.Params.assets.disableFingerprinting }}integrity="{{ $githubButtons.Data.Integrity }}"{{- end }}
+></script>
+{{ end }}

@@ -45,7 +45,7 @@
     {{- $link := print "https://github.com/" $repo "/commit/" $ref}}
 
     {{ with resources.GetRemote $imgUrl }}
-    <a href="{{ $link }}"><img src="{{ .RelPermalink }}"></a>
+    <a href="{{ $link }}"><img src="{{ .RelPermalink }}" width="50%" border="1px"></a>
     {{ end }}
 
 {{- else -}}

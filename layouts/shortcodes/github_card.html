@@ -1,55 +1,38 @@
 {{- $shortLink := .Get 0 -}}
 <!-- # identifies issues and pull requests, @ identifies commits, if neither it's a repo -->
+{{- $imgUrl := "" -}}
+{{- $link := ""}}
 {{- if (in $shortLink "#") -}}
-
     {{- $repo := index (split $shortLink "#") 0 -}}
     {{- $issue := index (split $shortLink "#") 1 -}}
     <!-- https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#get-an-issue -->
     {{- $urlToGet := print "https://api.github.com/repos/" $repo "/issues/" $issue -}}
-
     {{- with resources.GetRemote $urlToGet  -}}
-        {{- if (resources.GetRemote $urlToGet).Err -}}
-            <blockquote class="toot-blockquote">
-                <p class="ctr legal">[Source not online<br />
-                at time of site build.]</p>
-            </blockquote>
-        {{- else -}}
-            {{- $json := unmarshal .Content -}}
-            {{- $jsonHolder := $json -}}{{/* Being safe */}}
+        {{- $json := unmarshal .Content -}}
+        {{- $jsonHolder := $json -}}{{/* Being safe */}}
+        {{- $hash := sha256 $json.updated_at}}
 
-            {{- $hash := sha256 $json.updated_at}}
-            {{- $imgUrl := print "https://opengraph.githubassets.com/" $hash "/" $repo "/issues/" $issue -}}
-
-            {{- $link := $json.html_url}}
-            {{- if isset $json "pull_request"}}
-
-                {{- $imgUrl = print "https://opengraph.githubassets.com/" $hash "/" $repo "/pull/" $issue -}}
-
-
-            {{- end -}}
-
-            {{ with resources.GetRemote $imgUrl }}
-            <a href="{{ $link }}"><img src="{{ .RelPermalink }}" width="50%" border="1px"></a>
-            {{ end }}
-
+        {{- if isset $json "pull_request"}}
+            {{- $imgUrl = print "https://opengraph.githubassets.com/" $hash "/" $repo "/pull/" $issue -}}
+        {{-  else -}}
+            {{- $imgUrl = print "https://opengraph.githubassets.com/" $hash "/" $repo "/issues/" $issue -}}
         {{- end -}}
-
+        {{- $link = $json.html_url}}
     {{- end -}}
 {{- else if (in $shortLink "@") -}}
     {{- $repo := index (split $shortLink "@") 0 -}}
     {{- $ref := index (split $shortLink "@") 1 -}}
-
     {{- $hash := sha256 now}}
-    {{- $imgUrl := print "https://opengraph.githubassets.com/" $hash "/" $repo "/commit/" $ref -}}
 
-    {{- $link := print "https://github.com/" $repo "/commit/" $ref}}
+    {{- $link = print "https://github.com/" $repo "/commit/" $ref}}
+    {{- $imgUrl = print "https://opengraph.githubassets.com/" $hash "/" $repo "/commit/" $ref -}}
+{{- else if (in $shortLink "/") -}}
+    {{- $repo := $shortLink -}}
+    {{- $hash := sha256 now}}
 
-    {{ with resources.GetRemote $imgUrl }}
-    <a href="{{ $link }}"><img src="{{ .RelPermalink }}" width="50%" border="1px"></a>
-    {{ end }}
-
-{{- else -}}
-    {{- $imgUrl := print "https://gh-card.dev/repos/" $shortLink ".svg?fullname=" -}}
-    {{- $img := resources.GetRemote $imgUrl -}}
-    {{- $img.Content | safeHTML -}}
+    {{- $link = print "https://github.com/" $repo }}
+    {{- $imgUrl = print "https://opengraph.githubassets.com/" $hash "/" $repo  -}}
 {{- end -}}
+{{ with resources.GetRemote $imgUrl }}
+<center><a href="{{ $link }}"><img src="{{ .RelPermalink }}" width="50%" border="1px"></a></center>
+{{ end }}

@@ -36,5 +36,5 @@
 
 {{- end -}}
 {{ with resources.GetRemote $imgUrl }}
-<center><a href="{{ $link }}"><img src="{{ .RelPermalink }}" width="50%" border="1px"></a></center>
+<a href="{{ $link }}" class="github-card"><img src="{{ .RelPermalink }}"></a>
 {{ end }}

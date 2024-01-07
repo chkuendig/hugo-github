@@ -35,6 +35,7 @@
 
 
 {{- end -}}
-{{ with resources.GetRemote $imgUrl }}
-<a href="{{ $link }}" class="github-card"><img src="{{ .RelPermalink }}"></a>
-{{ end }}
+{{- $img := resources.GetRemote $imgUrl -}}
+{{- $imgPath := print (.Page.File.Dir) $img.Name -}}
+{{- $img := $img.Content | resources.FromString $imgPath -}}
+<a href="{{ $link }}" class="github-card"><img src="{{ $img.RelPermalink }}"></a>

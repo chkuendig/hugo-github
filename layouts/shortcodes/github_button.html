@@ -45,17 +45,16 @@
                     {{- $icon = "octicon-issue-closed"}}
                 {{- end -}}
             {{- end -}}
-<a class="github-button" href="{{- $link -}}" data-icon="{{- $icon -}}" data-size="small" data-text='{{- index (split $shortLink "/") 1  -}}: <span style="font-weight:normal">{{- $json.title -}}</span>'></a>
+<a class="github-button" data-color-scheme="" href="{{- $link -}}" data-icon="{{- $icon -}}" data-size="small" data-text='<b>{{- index (split $shortLink "/") 1  -}}:</b>&nbsp;{{- $json.title -}}'></a>
         {{- else if eq $buttonType "commit" -}}
             {{- $link := $json.html_url}}
             {{- $icon := "octicon-git-commit"}}
             {{- $repo := index (split $shortLink "@") 0 -}}
             {{- $ref := index (split $shortLink "@") 1 -}}
-<a class="github-button" href="{{- $link -}}" data-icon="{{- $icon -}}" data-size="small" data-text='{{- index (split $repo "/") 1  -}}@{{- substr $ref 0 7 -}}: <span style="font-weight:normal">{{- $json.commit.message -}}</span>'></a>
-
+<a class="github-button" data-color-scheme="" href="{{- $link -}}" data-icon="{{- $icon -}}" data-size="small" data-text='<b>{{- index (split $repo "/") 1  -}}@{{- substr $ref 0 7 -}}:</b>&nbsp;{{- $json.commit.message -}}'></a>
         {{- else if eq $buttonType "repo" -}}
             {{- $link := $json.html_url}}
             {{- $icon := "octicon-repo"}}
-<a class="github-button" href="{{- $link -}}" data-icon="{{- $icon -}}" data-size="small" data-text='{{- $shortLink -}}'></a>
+<a class="github-button" data-color-scheme="" href="{{- $link -}}" data-icon="{{- $icon -}}" data-size="small" data-text='<b>{{- $shortLink -}}</b>'></a>
     {{- end -}}
 {{- end -}}

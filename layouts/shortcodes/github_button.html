@@ -22,7 +22,11 @@
     <!-- https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#get-a-commit -->
     {{- $urlToGet = print "https://api.github.com/repos/" $repo -}}
 {{- end -}}
-{{- with $json := getJSON $urlToGet  -}}
+{{- with resources.GetRemote $urlToGet  -}}
+    {{ with .Err }}
+        {{ errorf "%s" . }}
+    {{ else }}
+        {{ $json := . | transform.Unmarshal }}
         {{- $link := ""}}
         {{- $icon := ""}}
         {{- $text := ""}}
@@ -56,5 +60,6 @@
             {{- $link := $json.html_url}}
             {{- $icon := "octicon-repo"}}
 <a class="github-button" data-color-scheme="" href="{{- $link -}}" data-icon="{{- $icon -}}" data-size="small" data-text='<b>{{- $shortLink -}}</b>'></a>
+        {{- end -}}
     {{- end -}}
 {{- end -}}

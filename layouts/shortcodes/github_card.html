@@ -7,15 +7,20 @@
     {{- $issue := index (split $shortLink "#") 1 -}}
     <!-- https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#get-an-issue -->
     {{- $urlToGet := print "https://api.github.com/repos/" $repo "/issues/" $issue -}}
-    {{- with $json := getJSON $urlToGet  -}}
-        {{- $hash := sha256 $json.updated_at}}<!-- issues have a reliable update_at timestamp -->
+    {{- with resources.GetRemote $urlToGet  -}}
+        {{ with .Err }}
+           {{ errorf "%s" . }}
+        {{ else }}
+            {{ $json := . | transform.Unmarshal }}
+            {{- $hash := sha256 $json.updated_at}}<!-- issues have a reliable update_at timestamp -->
 
-        {{- if isset $json "pull_request"}}
-            {{- $imgUrl = print "https://opengraph.githubassets.com/" $hash "/" $repo "/pull/" $issue -}}
-        {{-  else -}}
-            {{- $imgUrl = print "https://opengraph.githubassets.com/" $hash "/" $repo "/issues/" $issue -}}
-        {{- end -}}
-        {{- $link = $json.html_url}}
+            {{- if isset $json "pull_request"}}
+                {{- $imgUrl = print "https://opengraph.githubassets.com/" $hash "/" $repo "/pull/" $issue -}}
+            {{-  else -}}
+                {{- $imgUrl = print "https://opengraph.githubassets.com/" $hash "/" $repo "/issues/" $issue -}}
+            {{- end -}}
+            {{- $link = $json.html_url}}
+        {{ end }}
     {{- end -}}
 {{- else if (in $shortLink "@") -}}
     {{- $repo := index (split $shortLink "@") 0 -}}
@@ -27,10 +32,15 @@
 {{- else if (in $shortLink "/") -}}
     {{- $repo := $shortLink -}}
     {{- $urlToGet := print "https://api.github.com/repos/" $repo -}}
-    {{- with $json := getJSON $urlToGet  -}}
-        {{- $hash := sha256 .Content}}<!-- repos can change even if the updated_at timestamp is unchaned - e.g. if issue count changes -->
-        {{- $link = print "https://github.com/" $repo }}
-        {{- $imgUrl = print "https://opengraph.githubassets.com/" $hash "/" $repo  -}}
+    {{- with resources.GetRemote $urlToGet  -}}
+        {{ with .Err }}
+           {{ errorf "%s" . }}
+        {{ else }}
+            {{ $json := . | transform.Unmarshal }}
+            {{- $hash := sha256 .Content}}<!-- repos can change even if the updated_at timestamp is unchaned - e.g. if issue count changes -->
+            {{- $link = print "https://github.com/" $repo }}
+            {{- $imgUrl = print "https://opengraph.githubassets.com/" $hash "/" $repo  -}}
+        {{- end -}}
     {{- end -}}
 
 

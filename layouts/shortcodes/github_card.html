@@ -35,7 +35,7 @@
     {{- with resources.GetRemote $urlToGet  -}}
         {{ with .Err }}
            {{ errorf "%s" . }}
-        {{ else }}
+        {{ else -}}
             {{ $json := . | transform.Unmarshal }}
             {{- $hash := sha256 .Content}}<!-- repos can change even if the updated_at timestamp is unchaned - e.g. if issue count changes -->
             {{- $link = print "https://github.com/" $repo }}

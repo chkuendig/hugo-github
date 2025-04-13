@@ -2,6 +2,7 @@
 <!-- # identifies issues and pull requests, @ identifies commits, if neither it's a repo -->
 {{- $imgUrl := "" -}}
 {{- $link := "" -}}
+{{- $altText := "" -}}
 {{- if (in $shortLink "#") -}}
     {{- $repo := index (split $shortLink "#") 0 -}}
     {{- $issue := index (split $shortLink "#") 1 -}}
@@ -20,6 +21,7 @@
                 {{- $imgUrl = print "https://opengraph.githubassets.com/" $hash "/" $repo "/issues/" $issue -}}
             {{- end -}}
             {{- $link = $json.html_url -}}
+            {{- $altText = $json.title -}}
         {{- else -}}
             {{- errorf "Unable to get remote resource %q" $urlToGet -}}
         {{- end -}}
@@ -31,6 +33,7 @@
 
     {{- $link = print "https://github.com/" $repo "/commit/" $ref -}}
     {{- $imgUrl = print "https://opengraph.githubassets.com/" $hash "/" $repo "/commit/" $ref -}}
+    {{- $altText = $shortLink -}}
 {{- else if (in $shortLink "/") -}}
     {{- $repo := $shortLink -}}
     {{- $urlToGet := print "https://api.github.com/repos/" $repo -}}
@@ -39,6 +42,7 @@
            {{- errorf "%s" . -}}
         {{- else with .Value -}}
             {{- $json := . | transform.Unmarshal -}}
+            {{- $altText = $json.description -}}
             {{- $hash := sha256 .Content -}}<!-- repos can change even if the updated_at timestamp is unchanged - e.g. if issue count changes -->
             {{- $link = print "https://github.com/" $repo -}}
             {{- $imgUrl = print "https://opengraph.githubassets.com/" $hash "/" $repo  -}}
@@ -53,4 +57,4 @@
 {{- $img := resources.GetRemote $imgUrl -}}
 {{- $imgPath := print (.Page.File.Dir) $img.Name -}}
 {{- $img := $img.Content | resources.FromString $imgPath -}}
-<a href="{{ $link }}" class="github-card"><img src="{{ $img.RelPermalink }}"></a>
+<a href="{{ $link }}" class="github-card"><img src="{{ $img.RelPermalink }}" alt="{{ $altText }}"></a>

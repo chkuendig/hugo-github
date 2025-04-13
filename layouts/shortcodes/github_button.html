@@ -4,64 +4,64 @@
 {{- $buttonType := "" -}}
 <!-- # identifies issues and pull requests, @ identifies commits, if neither it's a repo -->
 {{- if (in $shortLink "#") -}}
-    {{- $buttonType = "issue"}}
+    {{- $buttonType = "issue" -}}
     {{- $repo := index (split $shortLink "#") 0 -}}
     {{- $issue := index (split $shortLink "#") 1 -}}
     <!-- https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#get-an-issue -->
     {{- $urlToGet = print "https://api.github.com/repos/" $repo "/issues/" $issue -}}
 {{- else if (in $shortLink "@") -}}
-    {{- $buttonType = "commit"}}
+    {{- $buttonType = "commit" -}}
     {{- $repo := index (split $shortLink "@") 0 -}}
     {{- $ref := index (split $shortLink "@") 1 -}}
     <!-- https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#get-a-commit -->
     {{- $urlToGet = print "https://api.github.com/repos/" $repo "/commits/" $ref -}}
 {{- else -}}
-    {{- $buttonType = "repo"}}
+    {{- $buttonType = "repo" -}}
     <!-- https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#get-a-repository -->
     {{- $repo := $shortLink -}}
     <!-- https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#get-a-commit -->
     {{- $urlToGet = print "https://api.github.com/repos/" $repo -}}
 {{- end -}}
-{{ with try (resources.GetRemote $urlToGet) }}
-    {{ with .Err }}
-        {{ errorf "%s" . }}
-    {{ else with .Value }}
-        {{ $json := . | transform.Unmarshal }}
-        {{- $link := ""}}
-        {{- $icon := ""}}
-        {{- $text := ""}}
+{{- with try (resources.GetRemote $urlToGet) -}}
+    {{- with .Err -}}
+        {{- errorf "%s" . -}}
+    {{- else with .Value -}}
+        {{- $json := . | transform.Unmarshal -}}
+        {{- $link := "" -}}
+        {{- $icon := "" -}}
+        {{- $text := "" -}}
         {{- if eq $buttonType "issue" -}}
-            {{- $link = $json.html_url}}
-            {{- if isset $json "pull_request"}}
+            {{- $link = $json.html_url -}}
+            {{- if isset $json "pull_request" -}}
                 {{- if ($json.pull_request.merged_at) -}} <!-- merged and closed -->
-                    {{- $icon = "octicon-git-merge"}}
-                {{- else if ($json.closed_at)}} <!-- closed w/o merge -->
-                    {{- $icon = "octicon-git-pull-request-closed"}}
-                {{- else if $json.draft}} <!-- open draft -->
-                    {{- $icon = "octicon-git-pull-request-draft"}}
+                    {{- $icon = "octicon-git-merge" -}}
+                {{- else if ($json.closed_at) -}} <!-- closed w/o merge -->
+                    {{- $icon = "octicon-git-pull-request-closed" -}}
+                {{- else if $json.draft -}} <!-- open draft -->
+                    {{- $icon = "octicon-git-pull-request-draft" -}}
                 {{- else -}} <!-- open -->
-                    {{- $icon = "octicon-git-pull-request"}}
+                    {{- $icon = "octicon-git-pull-request" -}}
                 {{- end -}}
             {{- else -}}
                 {{- if (eq $json.state "open") -}} <!-- open issue -->
-                    {{- $icon = "octicon-issue-opened"}}
+                    {{- $icon = "octicon-issue-opened" -}}
                 {{- else -}}  <!-- closed issue -->
-                    {{- $icon = "octicon-issue-closed"}}
+                    {{- $icon = "octicon-issue-closed" -}}
                 {{- end -}}
             {{- end -}}
 <a class="github-button" data-color-scheme="" href="{{- $link -}}" data-icon="{{- $icon -}}" data-size="small" data-text='<b>{{- index (split $shortLink "/") 1  -}}:</b>&nbsp;{{- $json.title -}}'></a>
         {{- else if eq $buttonType "commit" -}}
-            {{- $link := $json.html_url}}
-            {{- $icon := "octicon-git-commit"}}
+            {{- $link := $json.html_url -}}
+            {{- $icon := "octicon-git-commit" -}}
             {{- $repo := index (split $shortLink "@") 0 -}}
             {{- $ref := index (split $shortLink "@") 1 -}}
 <a class="github-button" data-color-scheme="" href="{{- $link -}}" data-icon="{{- $icon -}}" data-size="small" data-text='<b>{{- index (split $repo "/") 1  -}}@{{- substr $ref 0 7 -}}:</b>&nbsp;{{- $json.commit.message -}}'></a>
         {{- else if eq $buttonType "repo" -}}
-            {{- $link := $json.html_url}}
-            {{- $icon := "octicon-repo"}}
+            {{- $link := $json.html_url -}}
+            {{- $icon := "octicon-repo" -}}
 <a class="github-button" data-color-scheme="" href="{{- $link -}}" data-icon="{{- $icon -}}" data-size="small" data-text='<b>{{- $shortLink -}}</b>'></a>
         {{- end -}}
-    {{ else }}
-        {{ errorf "Unable to get remote resource %q" $urlToGet }}
+    {{- else -}}
+        {{- errorf "Unable to get remote resource %q" $urlToGet -}}
     {{- end -}}
 {{- end -}}

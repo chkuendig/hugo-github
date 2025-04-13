@@ -1,49 +1,49 @@
 {{- $shortLink := .Get 0 -}}
 <!-- # identifies issues and pull requests, @ identifies commits, if neither it's a repo -->
 {{- $imgUrl := "" -}}
-{{- $link := ""}}
+{{- $link := "" -}}
 {{- if (in $shortLink "#") -}}
     {{- $repo := index (split $shortLink "#") 0 -}}
     {{- $issue := index (split $shortLink "#") 1 -}}
     <!-- https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#get-an-issue -->
     {{- $urlToGet := print "https://api.github.com/repos/" $repo "/issues/" $issue -}}
-    {{ with try (resources.GetRemote $urlToGet) }}
-        {{ with .Err }}
-           {{ errorf "%s" . }}
-        {{ else with .Value }}
-            {{ $json := . | transform.Unmarshal }}
-            {{- $hash := sha256 $json.updated_at}}<!-- issues have a reliable update_at timestamp -->
+    {{- with try (resources.GetRemote $urlToGet) -}}
+        {{- with .Err -}}
+           {{- errorf "%s" . -}}
+        {{- else with .Value -}}
+            {{- $json := . | transform.Unmarshal -}}
+            {{- $hash := sha256 $json.updated_at -}}<!-- issues have a reliable update_at timestamp -->
 
-            {{- if isset $json "pull_request"}}
+            {{- if isset $json "pull_request" -}}
                 {{- $imgUrl = print "https://opengraph.githubassets.com/" $hash "/" $repo "/pull/" $issue -}}
             {{-  else -}}
                 {{- $imgUrl = print "https://opengraph.githubassets.com/" $hash "/" $repo "/issues/" $issue -}}
             {{- end -}}
-            {{- $link = $json.html_url}}
-        {{ else }}
-            {{ errorf "Unable to get remote resource %q" $urlToGet }}
+            {{- $link = $json.html_url -}}
+        {{- else -}}
+            {{- errorf "Unable to get remote resource %q" $urlToGet -}}
         {{- end -}}
     {{- end -}}
 {{- else if (in $shortLink "@") -}}
     {{- $repo := index (split $shortLink "@") 0 -}}
     {{- $ref := index (split $shortLink "@") 1 -}}
-    {{- $hash := sha256 $ref}}<!-- commit cards never update -->
+    {{- $hash := sha256 $ref -}}<!-- commit cards never update -->
 
-    {{- $link = print "https://github.com/" $repo "/commit/" $ref}}
+    {{- $link = print "https://github.com/" $repo "/commit/" $ref -}}
     {{- $imgUrl = print "https://opengraph.githubassets.com/" $hash "/" $repo "/commit/" $ref -}}
 {{- else if (in $shortLink "/") -}}
     {{- $repo := $shortLink -}}
     {{- $urlToGet := print "https://api.github.com/repos/" $repo -}}
-    {{ with try (resources.GetRemote $urlToGet) }}
-        {{ with .Err }}
-           {{ errorf "%s" . }}
-        {{ else with .Value }}
-            {{ $json := . | transform.Unmarshal }}
-            {{- $hash := sha256 .Content}}<!-- repos can change even if the updated_at timestamp is unchanged - e.g. if issue count changes -->
-            {{- $link = print "https://github.com/" $repo }}
+    {{- with try (resources.GetRemote $urlToGet) -}}
+        {{- with .Err -}}
+           {{- errorf "%s" . -}}
+        {{- else with .Value -}}
+            {{- $json := . | transform.Unmarshal -}}
+            {{- $hash := sha256 .Content -}}<!-- repos can change even if the updated_at timestamp is unchanged - e.g. if issue count changes -->
+            {{- $link = print "https://github.com/" $repo -}}
             {{- $imgUrl = print "https://opengraph.githubassets.com/" $hash "/" $repo  -}}
-        {{ else }}
-            {{ errorf "Unable to get remote resource %q %s" $urlToGet .Data}}
+        {{- else -}}
+            {{- errorf "Unable to get remote resource %q %s" $urlToGet .Data -}}
         {{- end -}}
     {{- end -}}
 
